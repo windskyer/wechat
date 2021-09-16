@@ -141,11 +141,11 @@ def task(title_name):
     sys.stdout.flush()
 
 
-def main():
+def main(title_name):
     # 文件传输助手
     # 叶云云
     # title_name = '文件传输助手'
-    title_name = '叶云云'
+    # title_name = '叶云云'
     scheduler = BlockingScheduler()
     # 马上执行
     scheduler.add_job(task, args=[title_name])
@@ -161,4 +161,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main('叶云云')
