@@ -2,8 +2,10 @@
 import win32api
 import win32gui
 import win32con
+import win32com.client
 import win32clipboard as clipboard
 import requests
+import pythoncom
 from apscheduler.schedulers.blocking import BlockingScheduler
 import datetime
 import time
@@ -14,11 +16,14 @@ import logging
 import sys
 
 log = logging.getLogger('apscheduler.executors.default')
+log1 = logging.getLogger('apscheduler.scheduler')
 log.setLevel(logging.DEBUG)  # DEBUG
+log1.setLevel(logging.INFO)  # DEBUG
 fmt = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 han = logging.StreamHandler(sys.stdout)
 han.setFormatter(fmt)
 log.addHandler(han)
+log1.addHandler(han)
 
 
 # 获取双语文库
@@ -105,10 +110,14 @@ def open_window(class_name, title_name):
     # win = win32gui.FindWindow(className, titleName)
     # print("找到【%s】这个人句柄：%x" % (titleName, pHwnd))
     if wp != 0:
-        left, top, right, bottom = win32gui.GetWindowRect(wp)
-        print(left, top, right, bottom)  # 最小化为负数
+        # left, top, right, bottom = win32gui.GetWindowRect(wp)
+        # print(left, top, right, bottom)  # 最小化为负数
         # 将窗口提到最前
         # 强行显示界面后才好截图
+        # 发送一个alt key事件
+        pythoncom.CoInitialize()
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shell.SendKeys('%')
         win32gui.ShowWindow(wp, win32con.SW_RESTORE)
         # win32gui.ShowWindow(wp, win32con.SW_SHOWMINIMIZED)
         win32gui.SetForegroundWindow(wp)  # 获取控制
@@ -150,7 +159,7 @@ def main(title_name):
     # 马上执行
     scheduler.add_job(task, args=[title_name])
     # 1小时一次
-    scheduler.add_job(task, 'interval', hours=1, args=[title_name])
+    scheduler.add_job(task, 'interval', hours=2, args=[title_name])
     # 每天早上执行
     scheduler.add_job(task, 'cron', day_of_week='0-6', hour=7, minute=52, second=12,
                       misfire_grace_time=30, args=[title_name])
